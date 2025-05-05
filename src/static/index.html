@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rent & Utility Tracker</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>Rent & Utility Tracker</h1>
+        <nav>
+            <button id="nav-tenants">Tenants</button>
+            <button id="nav-utilities">Utilities</button>
+            <button id="nav-settings" style="display: none;">Settings</button> <!-- Hide settings for now -->
+        </nav>
+    </header>
+
+    <div id="main-content">
+        <!-- Tenant Management Section -->
+        <section id="tenants-section" class="main-section">
+            <h2>Tenants</h2>
+            <button id="add-tenant-btn">Add New Tenant</button>
+            <ul id="tenant-list"></ul>
+        </section>
+
+        <!-- Tenant Details Section -->
+        <section id="tenant-details-section" class="main-section" style="display: none;">
+            <h2 id="tenant-details-name">Tenant Details</h2>
+            <button id="back-to-tenants-btn">Back to Tenant List</button>
+            <div id="tenant-info"></div>
+            <h3>Rent Payments</h3>
+            <button id="add-payment-btn">Add Payment</button>
+            <ul id="payment-list"></ul>
+            <!-- Add section for tenant's share of utility bills here later -->
+        </section>
+
+        <!-- Utility Management Section -->
+        <section id="utilities-section" class="main-section" style="display: none;">
+            <h2>Utilities</h2>
+            <div class="utilities-columns">
+                <div id="utility-categories-column">
+                    <h3>Categories</h3>
+                    <button id="add-category-btn">Add Category</button>
+                    <ul id="category-list"></ul>
+                </div>
+                <div id="utility-bills-column">
+                    <h3>Bills</h3>
+                     <div class="bill-controls">
+                        <label for="category-filter">Filter by Category:</label>
+                        <select id="category-filter">
+                            <option value="all">All Categories</option>
+                        </select>
+                        <button id="add-bill-btn">Add Bill</button>
+                        <button id="import-csv-btn">Import Bills (CSV)</button>
+                    </div>
+                    <ul id="bill-list"></ul>
+                </div>
+            </div>
+        </section>
+
+         <!-- Utility Bill Details Section -->
+        <section id="bill-details-section" class="main-section" style="display: none;">
+            <h2 id="bill-details-header">Bill Details</h2>
+            <button id="back-to-utilities-btn">Back to Utilities List</button>
+            <div id="bill-info"></div>
+            <h3>Bill Splits</h3>
+            <button id="manage-split-btn">Manage Splits</button>
+            <ul id="split-list"></ul>
+        </section>
+
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Add/Edit Tenant Modal -->
+    <div id="tenant-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal(	'tenant-modal	')">&times;</span>
+            <h3 id="tenant-modal-title">Add Tenant</h3>
+            <form id="tenant-form">
+                <input type="hidden" id="tenant-id">
+                <label for="tenant-name">Name:</label>
+                <input type="text" id="tenant-name" required><br>
+                <label for="tenant-email">Email:</label>
+                <input type="email" id="tenant-email"><br>
+                <label for="tenant-phone">Phone:</label>
+                <input type="tel" id="tenant-phone"><br>
+                <label for="tenant-move-in">Move-in Date:</label>
+                <input type="date" id="tenant-move-in"><br>
+                <label for="tenant-rent">Base Rent Amount:</label>
+                <input type="number" step="0.01" id="tenant-rent" required><br>
+                <label for="tenant-notes">Notes:</label>
+                <textarea id="tenant-notes"></textarea><br>
+                <label for="tenant-active">Active:</label>
+                <input type="checkbox" id="tenant-active" checked><br>
+                <button type="submit">Save Tenant</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Payment Modal -->
+    <div id="payment-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal(	'payment-modal	')">&times;</span>
+            <h3 id="payment-modal-title">Add Payment</h3>
+            <form id="payment-form">
+                <input type="hidden" id="payment-id">
+                <input type="hidden" id="payment-tenant-id">
+                <label for="payment-amount">Amount:</label>
+                <input type="number" step="0.01" id="payment-amount" required><br>
+                <label for="payment-date">Payment Date:</label>
+                <input type="date" id="payment-date" required><br>
+                <label for="payment-method">Payment Method:</label>
+                <input type="text" id="payment-method" placeholder="e.g., Bank Transfer, Cash"><br>
+                <label for="payment-notes">Notes:</label>
+                <textarea id="payment-notes"></textarea><br>
+                <button type="submit">Save Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Utility Category Modal -->
+    <div id="category-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal(	'category-modal	')">&times;</span>
+            <h3 id="category-modal-title">Add Category</h3>
+            <form id="category-form">
+                <input type="hidden" id="category-id">
+                <label for="category-name">Name:</label>
+                <input type="text" id="category-name" required><br>
+                <label for="category-description">Description:</label>
+                <textarea id="category-description"></textarea><br>
+                <button type="submit">Save Category</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Utility Bill Modal -->
+    <div id="bill-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal(	'bill-modal	')">&times;</span>
+            <h3 id="bill-modal-title">Add Bill</h3>
+            <form id="bill-form">
+                <input type="hidden" id="bill-id">
+                <label for="bill-category">Category:</label>
+                <select id="bill-category" required></select><br>
+                <label for="bill-start-date">Billing Period Start:</label>
+                <input type="date" id="bill-start-date" required><br>
+                <label for="bill-end-date">Billing Period End:</label>
+                <input type="date" id="bill-end-date" required><br>
+                <label for="bill-date">Bill Date:</label>
+                <input type="date" id="bill-date"><br>
+                <label for="bill-amount">Total Amount:</label>
+                <input type="number" step="0.01" id="bill-amount" required><br>
+                <label for="bill-usage">Usage Data:</label>
+                <textarea id="bill-usage" placeholder="e.g., 150 kWh"></textarea><br>
+                <label for="bill-notes">Notes:</label>
+                <textarea id="bill-notes"></textarea><br>
+                <!-- File upload can be added here later -->
+                <button type="submit">Save Bill</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CSV Import Modal -->
+    <div id="csv-import-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal(	'csv-import-modal	')">&times;</span>
+            <h3>Import Utility Bills from CSV</h3>
+            <p>Upload a CSV file with the following columns:</p>
+            <p><code>category_name, billing_start, billing_end, total_amount, bill_date(optional), usage(optional), notes(optional)</code></p>
+            <p>Dates should be in YYYY-MM-DD format. Categories will be created if they don't exist.</p>
+            <form id="csv-import-form">
+                <label for="csv-file">CSV File:</label>
+                <input type="file" id="csv-file" accept=".csv" required><br>
+                <button type="submit">Import</button>
+            </form>
+            <div id="csv-import-status"></div>
+        </div>
+    </div>
+
+    <!-- Manage Bill Split Modal -->
+    <div id="split-modal" class="modal" style="display: none;">
+        <div class="modal-content large">
+            <span class="close-btn" onclick="closeModal(	'split-modal	')">&times;</span>
+            <h3 id="split-modal-title">Manage Bill Splits</h3>
+            <p>Bill Total: $<span id="split-bill-total">0.00</span></p>
+            <form id="split-form">
+                <input type="hidden" id="split-bill-id">
+                <div id="split-tenant-inputs">
+                    <!-- Tenant split inputs will be generated here -->
+                </div>
+                <p>Total Split Amount: $<span id="split-calculated-total">0.00</span></p>
+                <p id="split-warning" style="color: red; display: none;">Warning: Split total does not match bill total.</p>
+                <button type="button" id="split-equally-btn">Split Equally</button>
+                <button type="submit">Save Splits</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
+

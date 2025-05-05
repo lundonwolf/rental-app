@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: rent_tracker_web
+    ports:
+      - "5000:5000" # Map host port 5000 to container port 5000
+    volumes:
+      # Mount the instance directory to persist the SQLite database
+      - ./instance:/app/instance 
+      # You can uncomment the line below for development to reflect code changes immediately
+      # - ./src:/app/src 
+    environment:
+      # Set a strong secret key for production deployments
+      - SECRET_KEY=df1g65df4h6d5g44gfghr8791hn
+      # Add other environment variables if needed, e.g., for external services
+      # - OPENAI_API_KEY=your_openai_key_here # Alternatively, manage via app settings UI
+    restart: unless-stopped
+
+volumes:
+  # Define the named volume for the instance directory (optional, but good practice)
+  # If you use a named volume instead of a bind mount, data persists even if you remove the container
+  # To use it, change the volume mount above to: - rent_tracker_data:/app/instance
+  # rent_tracker_data:
+
